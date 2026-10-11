@@ -60,3 +60,5 @@ backend/_uv*.out
 # Local account and fault data
 backend/data/users.json
 backend/data/manual_faults.json
+.vercel
+.env*
