@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || '';
 
 const FAULT_TYPES = ['temporary', 'permanent'];
 const FAKTOR_OPTIONS = ['Cuaca', 'Peralatan', 'Hewan', 'Risiko'];

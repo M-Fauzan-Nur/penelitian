@@ -10,7 +10,7 @@ import AbcRun from './components/AbcRun.jsx';
 import ResultsPage from './components/ResultsPage.jsx';
 import './App.css';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || '';
 
 function persistedHeaders(user) {
   if (!user?.token) return {};
