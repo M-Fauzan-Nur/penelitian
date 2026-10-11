@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
@@ -207,7 +208,10 @@ class DirectLSTM:
         )
         
         # Plot training dan simpan ke file
-        plot_filename = "direct_training_results_scenario_a.png"
+        plot_filename = os.path.join(
+    	    "/tmp" if os.environ.get("VERCEL") == "1" else ".",
+            "direct_training_results_scenario_a.png"
+        )
         plot_training_history(history, title="Training Curve - Direct LSTM", filename=plot_filename)
 
         # Evaluate
