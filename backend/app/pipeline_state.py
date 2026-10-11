@@ -97,3 +97,36 @@ def invalidate_on_dataset_change(new_hash: str) -> bool:
             _state.abc_done = False
             return True
         return False
+
+
+
+
+def save_state():
+    """Persist a snapshot of the current pipeline state to private Vercel Blob."""
+    from dataclasses import asdict
+    from .blob_storage import STATE_PATH, save_json
+
+    with _state_lock:
+        if _state is None:
+            return
+        payload = asdict(_state)
+        save_json(STATE_PATH, payload)
+
+
+def restore_state():
+    """Restore pipeline state from private Vercel Blob when not initialized."""
+    global _state
+
+    from .blob_storage import STATE_PATH, load_json
+
+    with _state_lock:
+        if _state is not None:
+            return _state
+
+    payload = load_json(STATE_PATH)
+    restored = PipelineState(**payload) if payload else PipelineState()
+
+    with _state_lock:
+        if _state is None:
+            _state = restored
+        return _state

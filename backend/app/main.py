@@ -17,6 +17,8 @@ from .pipeline_state import (
     invalidate_on_dataset_change,
     invalidate_on_network_change,
     reset_all,
+    restore_state,
+    save_state,
 )
 from .scenarios import COLUMN_ALIASES, LSTM_CORE_COLS
 from .topology_utils import compute_topology, NETWORK_REQUIRED_COLS
@@ -25,6 +27,11 @@ from .users import ensure_bootstrap
 ensure_bootstrap()
 
 app = FastAPI(title="Recloser Research Backend", version="0.3.0")
+
+@app.on_event("startup")
+def restore_pipeline_on_startup():
+    restore_state()
+    print("[PIPELINE] State restoration completed.")
 
 _frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173")
 
@@ -119,6 +126,7 @@ async def upload_network(file: UploadFile = File(...), user: dict = Depends(get_
     s.network_hash = h
 
     changed = invalidate_on_network_change(h)
+    save_state()
 
     return {
         "status": "ok",
@@ -187,6 +195,7 @@ async def upload_dataset(file: UploadFile = File(...), user: dict = Depends(get_
     s.dataset_hash = h
 
     changed = invalidate_on_dataset_change(h)
+    save_state()
 
     return {
         "status": "ok",
@@ -334,6 +343,7 @@ def run_lstm(user: dict = Depends(get_current_user)):
         "dataset_hash": s.dataset_hash,
     }
     s.lstm_done = True
+    save_state()
 
     rows = result["rows"]
     pola_vals = [r["pola_gangguan"] for r in rows] if rows else [0]
@@ -415,6 +425,7 @@ def run_abc(
 
     s.abc_results = result
     s.abc_done = True
+    save_state()
 
     return {"status": "done", **result}
 
@@ -453,6 +464,7 @@ def get_lstm_results(user: dict = Depends(get_current_user)):
 def reset_pipeline(user: dict = Depends(get_current_user)):
     """Reset entire pipeline (network, dataset, LSTM, ABC)."""
     reset_all()
+    save_state()
     return {"status": "reset"}
 
 
